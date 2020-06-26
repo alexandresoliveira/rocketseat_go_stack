@@ -5,31 +5,21 @@ import authMiddleware from '@modules/users/infra/http/middlewares/ensureAuthenti
 
 import uploadConfig from '@config/upload';
 
-import CreateUserService from '@modules/users/services/CreateUserService';
-import UploadUserAvatarService from '@modules/users/services/UploadUserAvatarService';
+import UsersController from '@modules/users/infra/http/controllers/UsersController';
+import UserAvatarController from '@modules/users/infra/http/controllers/UserAvatarController';
 
 const usersRoutes = Router();
 const upload = multer(uploadConfig);
+const usersController = new UsersController();
+const userAvatarController = new UserAvatarController();
 
-usersRoutes.post('/', async (request, response) => {
-  const createUserService = new CreateUserService();
-  const user = await createUserService.execute(request.body);
-  delete user.password;
-  return response.json(user);
-});
+usersRoutes.post('/', usersController.create);
 
 usersRoutes.patch(
   '/avatar',
   authMiddleware,
   upload.single('avatar'),
-  async (request, response) => {
-    const uploadUserAvatarService = new UploadUserAvatarService();
-    const user = await uploadUserAvatarService.execute({
-      userId: request.user.id,
-      avatarFilename: request.file.filename,
-    });
-    return response.json(user);
-  }
+  userAvatarController.update
 );
 
 export default usersRoutes;
