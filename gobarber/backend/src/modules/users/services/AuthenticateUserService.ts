@@ -1,9 +1,9 @@
-import { compare } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import { injectable, inject } from 'tsyringe';
 
 import AppError from '@shared/errors/AppError';
 import IUsersRepository from '@modules/users/repositories/IUsersRepository';
+import IHashProvider from '@modules/users/providers/HashProvider/models/IHashProvider';
 
 import User from '@modules/users/infra/typeorm/entities/User';
 
@@ -20,7 +20,8 @@ interface IResponseDTO {
 @injectable()
 class AuthenticateUserService {
   constructor(
-    @inject('UsersRepository') private usersRepository: IUsersRepository
+    @inject('UsersRepository') private usersRepository: IUsersRepository,
+    @inject('HashProvider') private hashProvider: IHashProvider
   ) {}
 
   async execute({ email, password }: IRequestDTO): Promise<IResponseDTO> {
@@ -30,7 +31,10 @@ class AuthenticateUserService {
       throw new AppError('Email or password are incorrect!');
     }
 
-    const correctPassword = await compare(password, user.password);
+    const correctPassword = await this.hashProvider.compareHash(
+      password,
+      user.password
+    );
 
     if (!correctPassword) {
       throw new AppError('Email or password are incorrect!');
