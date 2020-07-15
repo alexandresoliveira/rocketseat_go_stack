@@ -1,5 +1,6 @@
 import { injectable, inject } from 'tsyringe';
-import { getDaysInMonth, getDate } from 'date-fns';
+
+import { getHours } from 'date-fns';
 
 import AppError from '@shared/errors/AppError';
 import User from '@modules/users/infra/typeorm/entities/User';
@@ -8,17 +9,18 @@ import IAppointmentsRepository from '@modules/appointments/repositories/IAppoint
 
 interface IRequestDTO {
   provider_id: string;
+  day: number;
   month: number;
   year: number;
 }
 
 type IResponseDTO = Array<{
-  day: number;
+  hour: number;
   available: boolean;
 }>;
 
 @injectable()
-class ListProviderMonthAvailabilityService {
+class ListProviderDayAvailabilityService {
   constructor(
     @inject('AppointmentsRepository')
     private appointmentsRepository: IAppointmentsRepository
@@ -26,27 +28,28 @@ class ListProviderMonthAvailabilityService {
 
   async execute({
     provider_id,
+    day,
     month,
     year,
   }: IRequestDTO): Promise<IResponseDTO> {
-    const appointments = await this.appointmentsRepository.findAllInMonthFromProvider(
-      { provider_id, month, year }
+    const appointments = await this.appointmentsRepository.findAllInDayFromProvider(
+      { provider_id, day, month, year }
     );
 
-    const numberOfDaysInMonth = getDaysInMonth(new Date(year, month - 1));
+    const hourStart = 8;
 
-    const eachDayArray = Array.from(
-      { length: numberOfDaysInMonth },
-      (_, index) => index + 1
+    const eachHourArray = Array.from(
+      { length: 10 },
+      (_, index) => index + hourStart
     );
 
-    const availability = eachDayArray.map(day => {
-      const appointmentInDay = appointments.filter(
-        appointment => getDate(appointment.date) === day
+    const availability = eachHourArray.map(hour => {
+      const hasAppointmentInHour = appointments.find(
+        appointment => getHours(appointment.date) === hour
       );
       return {
-        day,
-        available: appointmentInDay.length < 10,
+        hour,
+        available: !hasAppointmentInHour,
       };
     });
 
@@ -54,4 +57,4 @@ class ListProviderMonthAvailabilityService {
   }
 }
 
-export default ListProviderMonthAvailabilityService;
+export default ListProviderDayAvailabilityService;
