@@ -12,7 +12,6 @@ appointmentsRoutes.use(authMiddleware);
 //   const appointments = await appointmentsRepository.find();
 //   return response.json(appointments);
 // });
-
 appointmentsRoutes.post('/', appointmentsController.create);
 
 export default appointmentsRoutes;
