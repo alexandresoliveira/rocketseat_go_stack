@@ -19,7 +19,6 @@ export default class AppointmentController {
       user_id,
       date: parsedDate,
     });
-
     return response.json(appointment);
   }
 }
