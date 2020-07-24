@@ -6,6 +6,8 @@ import AppError from '@shared/errors/AppError';
 import IUsersRepository from '@modules/users/repositories/IUsersRepository';
 import IHashProvider from '@modules/users/providers/HashProvider/models/IHashProvider';
 
+import ICacheProvider from '@shared/container/providers/CacheProvider/models/ICacheProvider';
+
 interface IRequestDTO {
   name: string;
   email: string;
@@ -16,7 +18,8 @@ interface IRequestDTO {
 class CreateUserService {
   constructor(
     @inject('UsersRepository') private usersRepository: IUsersRepository,
-    @inject('HashProvider') private hashProvider: IHashProvider
+    @inject('HashProvider') private hashProvider: IHashProvider,
+    @inject('CacheProvider') private cacheProvider: ICacheProvider
   ) {}
 
   async execute({ name, email, password }: IRequestDTO): Promise<User> {
@@ -30,6 +33,7 @@ class CreateUserService {
       email,
       password: hashedPassword,
     });
+    await this.cacheProvider.invalidadePrefix('providers-list');
     return user;
   }
 }
