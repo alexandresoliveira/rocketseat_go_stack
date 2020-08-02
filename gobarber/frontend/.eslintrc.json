@@ -29,6 +29,8 @@
     "react-hooks/exhaustive-deps": "warn",
     "react/jsx-props-no-spreading": "off",
     "react/prop-types": "off",
+    "import/no-duplicates": "off",
+    "@typescript-eslint/camelcase": "off",
     "react/jsx-filename-extension": [
       1,
       {
