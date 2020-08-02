@@ -7,7 +7,6 @@ import { useHistory, useLocation } from 'react-router-dom';
 
 import { Container, Content, AnimationContainer, Background } from './styles';
 
-import { useAuth } from '../../hooks/auth';
 import { useToast } from '../../hooks/toast';
 
 import Input from '../../components/Input';
@@ -25,7 +24,6 @@ interface ResetPasswordFormData {
 
 const ResetPassword: React.FC = () => {
   const formRef = useRef<FormHandles>(null);
-  const { signIn } = useAuth();
   const { addToast } = useToast();
 
   const history = useHistory();
@@ -74,7 +72,7 @@ const ResetPassword: React.FC = () => {
         });
       }
     },
-    [signIn, addToast, history],
+    [addToast, history, location.search],
   );
 
   return (
