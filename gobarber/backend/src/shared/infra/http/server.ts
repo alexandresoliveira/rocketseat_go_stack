@@ -16,10 +16,10 @@ import routes from './routes';
 
 const app = express();
 
-app.use(rateLimiter);
 app.use(cors({ origin: 'http://localhost:3000' }));
 app.use(express.json());
 app.use('/files', express.static(uploadConfig.uploadFolder));
+app.use(rateLimiter);
 app.use(routes);
 app.use(errors());
 app.use(
